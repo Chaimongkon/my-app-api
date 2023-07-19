@@ -7,32 +7,35 @@ import Button from '@mui/material/Button';
 export default function ProductAdd() {
     const productsubmit = event => {
         event.preventDefault();
+        const token = localStorage.getItem('token')
         var myHeaders = new Headers();
+        myHeaders.append("Authorization", "Bearer " + token);
         myHeaders.append("Content-Type", "application/json");
-        
+
         var raw = JSON.stringify({
-          "name": pname,
-          "description": dname,
-          "quantity": quantity,
-          "price": price
+            "name": pname,
+            "description": dname,
+            "quantity": quantity,
+            "price": price
         });
-        
+
         var requestOptions = {
-          method: 'POST',
-          headers: myHeaders,
-          body: raw,
-          redirect: 'follow'
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
         };
-        
-        fetch("http://localhost:7087/api/Product/Products", requestOptions)
-          .then(response => response.json())
-          .then(result => {
-            alert("เพิ่มข้อมูลเรียบร้อยแล้วจ้า");
-            if (result['price'] > '0'){
-                window.location.href = '/'
-            }
-          })
-          .catch(error => console.log('error', error));
+
+        fetch("https://localhost:7087/api/Product/Products", requestOptions)
+            .then(response => response.json())
+            .then(result => {
+                console.log(result['statusCode'])
+                alert("เพิ่มข้อมูลเรียบร้อยแล้วจ้า");
+                if (result['statusCode'] === 200) {
+                    window.location.href = 'product'
+                }
+            })
+            .catch(error => console.log('error', error));
     }
     const [pname, setPname] = useState("");
     const [dname, setDname] = useState("");

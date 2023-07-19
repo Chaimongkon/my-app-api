@@ -13,66 +13,61 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
-import Product from './Product';
 
-function Login (){
-    const navigate = useNavigate()
-    const MySwal = withReactContent(Swal)
-    const [inputs, setInputs] = useState({});
+function Login() {
+  const navigate = useNavigate()
+  const MySwal = withReactContent(Swal)
+  const [inputs, setInputs] = useState({});
 
-    const handleChange = (event) => {
-        const name = event.target.name;
-        const value = event.target.value;
-        setInputs(values => ({...values, [name]: value}))
-      }
-    
-      const handleSubmit = (event) => {
-        event.preventDefault();
-        var myHeaders = new Headers();
-myHeaders.append("Content-Type", "application/json");
+  const handleChange = (event) => {
+    const name = event.target.name;
+    const value = event.target.value;
+    setInputs(values => ({ ...values, [name]: value }))
+  }
 
-var raw = JSON.stringify({
-  "username": inputs.username,
-  "password": inputs.password
-});
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    var myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
 
-var requestOptions = {
-  method: 'POST',
-  headers: myHeaders,
-  body: raw,
-  redirect: 'follow'
-};
+    var raw = JSON.stringify({
+      "username": inputs.username,
+      "password": inputs.password
+    });
 
-fetch("https://localhost:7087/Login", requestOptions)
-  .then(response => response.json())
-  .then(result => {
-    if(result.value === 'Success'){
-        MySwal.fire({
+    var requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow'
+    };
+
+    fetch("https://192.168.100.231:7087/Login", requestOptions)
+      .then(response => response.json())
+      .then(result => {
+        if (result['statusCode'] === 200) {
+          MySwal.fire({
             title: <strong>Login Success</strong>,
-            html: <i>You clicked the button!</i>,
+            html: <i>Welcome {result.value.username}</i>,
             icon: 'success'
-          }).then((value) =>{
-            localStorage.setItem('token', result.serializerSettings.accessToken)
+          }).then((value) => {
+            localStorage.setItem('token', result.value.accessToken)
             console.log(localStorage)
             navigate('product')
           })
-    } else if (result.value === 'Failed'){
-        MySwal.fire({
+        } else if (result['statusCode'] === 404) {
+          MySwal.fire({
             title: <strong>Login Failed</strong>,
             html: <i>You clicked the button!</i>,
             icon: 'error'
           })
-    }
-
-  })
-  .catch(error => console.log('error', error));
-        console.log(inputs)
-        // alert(inputs);
-      }
-
-    return(
-        <div>
-                  <Container component="main" maxWidth="xs">
+        }
+      })
+      .catch(error => console.log('error', error));
+  }
+  return (
+    <div>
+      <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
           sx={{
@@ -98,8 +93,8 @@ fetch("https://localhost:7087/Login", requestOptions)
               name="username"
               autoComplete="username"
               autoFocus
-              value={inputs.username || ""} 
-        onChange={handleChange}
+              value={inputs.username || ""}
+              onChange={handleChange}
             />
             <TextField
               margin="normal"
@@ -110,7 +105,7 @@ fetch("https://localhost:7087/Login", requestOptions)
               type="password"
               id="password"
               autoComplete="current-password"
-              value={inputs.password || ""} 
+              value={inputs.password || ""}
               onChange={handleChange}
             />
             <Button
@@ -119,13 +114,13 @@ fetch("https://localhost:7087/Login", requestOptions)
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Sign In
+              Login
             </Button>
             <Grid container>
               <Grid item xs>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
+                <Link href="/register" variant="body2">
                   {"Don't have an account? Register"}
                 </Link>
               </Grid>
@@ -133,7 +128,7 @@ fetch("https://localhost:7087/Login", requestOptions)
           </Box>
         </Box>
       </Container>
-                       </div>
-    )
+    </div>
+  )
 }
 export default Login;

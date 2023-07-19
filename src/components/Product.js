@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -14,13 +13,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Link from '@mui/material/Link';
 import ButtonGroup from '@mui/material/ButtonGroup';
-import { Token } from '@mui/icons-material';
-
 
 
 export default function Product() {
-  const navigate = useNavigate()
-  const [isLoaded, setIsLoaded] = useState(true);
   const [items, setItems] = useState([]);
 
   useEffect(() => {
@@ -37,21 +32,22 @@ export default function Product() {
     };
     fetch("https://localhost:7087/api/Product/Products", requestOptions)
       .then(res => res.json())
-      .then( (result) => {
-          setItems(result);
-        }
+      .then((result) => {
+        setItems(result.value);
+        console.log(result)
+      }
       )
       .catch(error => console.log('error', error));
+  }
+  const ProductUpdate = id => {
+    window.location = '/update/' + id
   }
   const ProductDel = id => {
     const token = localStorage.getItem('token')
     var myHeaders = new Headers();
     myHeaders.append("Authorization", "Bearer " + token);
-    var raw = "";
-
     var requestOptions = {
       method: 'DELETE',
-      body: raw,
       headers: myHeaders,
       redirect: 'follow'
     };
@@ -60,16 +56,13 @@ export default function Product() {
       .then(response => response.json())
       .then(result => {
         alert("ลบข้อมูล " + id);
-        if (result === id) {
+        if (result['statusCode'] === 200) {
           ProdGet();
         }
       })
       .catch(error => console.log('error', error));
   }
-  const logout = () => {
-    localStorage.removeItem('token')
-    navigate('/')
-  }
+
   return (
     <React.Fragment>
       <CssBaseline />
@@ -81,7 +74,6 @@ export default function Product() {
                 Product
               </Typography>
             </Box>
-            <Box><Button onClick={logout} variant="contained">Logout</Button></Box>
             <Box><Link href="create"><Button variant="contained">ADD Product</Button></Link></Box>
           </Box>
           <TableContainer component={Paper}>
@@ -111,7 +103,7 @@ export default function Product() {
                     <TableCell align="right">{row.price}</TableCell>
                     <TableCell align="right">
                       <ButtonGroup variant="contained" aria-label="outlined primary button group">
-                        <Button>Edit</Button>
+                        <Button onClick={() => ProductUpdate(row.id)}>Edit</Button>
                         <Button onClick={() => ProductDel(row.id)}>Delete</Button>
                       </ButtonGroup>
                     </TableCell>
